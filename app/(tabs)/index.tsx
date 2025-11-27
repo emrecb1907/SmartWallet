@@ -1,10 +1,13 @@
 import { LinearGradient } from 'expo-linear-gradient';
-import { useRouter } from 'expo-router';
+import { useRouter, useFocusEffect } from 'expo-router';
 import { ArrowDownLeft, ArrowUpRight, Bell, Eye, FileText, Plus } from 'lucide-react-native';
-import React from 'react';
+import React, { useEffect, useState, useCallback } from 'react';
 import { Image, ScrollView, Text, TouchableOpacity, View } from 'react-native';
 import { BarChart } from 'react-native-gifted-charts';
 import { SafeView } from '@/components/SafeView';
+import AsyncStorage from '@react-native-async-storage/async-storage';
+
+const USER_NAME_KEY = '@user_name';
 
 const barData = [
   { value: 250, label: '1' },
@@ -45,6 +48,24 @@ const transactions = [
 
 export default function HomeScreen() {
   const router = useRouter();
+  const [userName, setUserName] = useState('Ben');
+
+  const loadUserName = useCallback(async () => {
+    try {
+      const name = await AsyncStorage.getItem(USER_NAME_KEY);
+      if (name) {
+        setUserName(name);
+      }
+    } catch (error) {
+      console.error('Error loading user name:', error);
+    }
+  }, []);
+
+  useFocusEffect(
+    useCallback(() => {
+      loadUserName();
+    }, [loadUserName])
+  );
 
   return (
     <SafeView className="flex-1 bg-background">
@@ -60,7 +81,7 @@ export default function HomeScreen() {
             </View>
             <View>
               <Text className="text-secondary text-sm">Welcome back,</Text>
-              <Text className="text-primary text-xl font-semibold">Hi, Ben 👋</Text>
+              <Text className="text-primary text-xl font-semibold">Hi, {userName} 👋</Text>
             </View>
           </View>
           <TouchableOpacity className="w-10 h-10 rounded-full bg-card items-center justify-center border border-border">
