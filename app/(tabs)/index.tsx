@@ -1,23 +1,48 @@
 import { LinearGradient } from 'expo-linear-gradient';
 import { useRouter, useFocusEffect } from 'expo-router';
-import { ArrowDownLeft, ArrowUpRight, Bell, Eye, FileText, Plus } from 'lucide-react-native';
-import React, { useEffect, useState, useCallback } from 'react';
+import { ArrowDownLeft, ArrowUpRight, Bell, Eye, EyeOff, FileText, Plus } from 'lucide-react-native';
+import React, { useState, useCallback, useEffect } from 'react';
 import { Image, ScrollView, Text, TouchableOpacity, View } from 'react-native';
 import { BarChart } from 'react-native-gifted-charts';
 import { SafeView } from '@/components/SafeView';
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import Animated, { FadeIn, FadeOut } from 'react-native-reanimated';
+import { useTranslation } from 'react-i18next';
 
 const USER_NAME_KEY = '@user_name';
+const BALANCE_VISIBLE_KEY = '@balance_visible';
 
-const barData = [
-  { value: 250, label: '1' },
-  { value: 500, label: '5' },
-  { value: 745, label: '10', frontColor: '#60A5FA' }, // Highlighted
-  { value: 320, label: '15' },
-  { value: 600, label: '20' },
-  { value: 256, label: '25' },
-  { value: 300, label: '30' },
-];
+// Get number of days in current month
+const getDaysInMonth = (): number => {
+  const now = new Date();
+  return new Date(now.getFullYear(), now.getMonth() + 1, 0).getDate();
+};
+
+// Generate bar data for current month - one data point for each day
+const generateBarData = (): Array<{ value: number; label: string; frontColor?: string }> => {
+  const daysInMonth = getDaysInMonth();
+  const today = new Date().getDate();
+  const data: Array<{ value: number; label: string; frontColor?: string }> = [];
+  
+  // Create data for each day of the month
+  for (let day = 1; day <= daysInMonth; day++) {
+    // Generate random value between 100 and 800
+    const value = Math.floor(Math.random() * 700) + 100;
+    const isToday = day === today;
+    
+    // Show label only for certain days to avoid clutter (every 3-5 days depending on month length)
+    const labelStep = daysInMonth > 28 ? Math.ceil(daysInMonth / 10) : 2;
+    const showLabel = day % labelStep === 0 || day === 1 || day === daysInMonth || isToday;
+    
+    data.push({
+      value,
+      label: showLabel ? day.toString() : '',
+      ...(isToday && { frontColor: '#60A5FA' }), // Highlight today
+    });
+  }
+  
+  return data;
+};
 
 const transactions = [
   {
@@ -46,25 +71,67 @@ const transactions = [
   },
 ];
 
+const formatHiddenBalance = (balance: string): string => {
+  // Remove $ sign and format
+  const withoutDollar = balance.replace('$', '');
+  // Replace all digits with *
+  return '$' + withoutDollar.replace(/\d/g, '*');
+};
+
 export default function HomeScreen() {
+  const { t, i18n } = useTranslation('home');
   const router = useRouter();
-  const [userName, setUserName] = useState('Ben');
+  const [userName, setUserName] = useState('');
+  const [isBalanceVisible, setIsBalanceVisible] = useState(true);
+  const balance = '$3,420.75';
+  const [barData, setBarData] = useState(generateBarData());
 
   const loadUserName = useCallback(async () => {
     try {
       const name = await AsyncStorage.getItem(USER_NAME_KEY);
+      console.log('Loaded name from AsyncStorage:', name);
       if (name) {
+        console.log('Setting userName to:', name);
         setUserName(name);
+      } else {
+        console.log('No name found in AsyncStorage');
       }
     } catch (error) {
       console.error('Error loading user name:', error);
     }
   }, []);
 
+  const loadBalanceVisibility = useCallback(async () => {
+    try {
+      const savedVisibility = await AsyncStorage.getItem(BALANCE_VISIBLE_KEY);
+      if (savedVisibility !== null) {
+        setIsBalanceVisible(savedVisibility === 'true');
+      }
+    } catch (error) {
+      console.error('Error loading balance visibility:', error);
+    }
+  }, []);
+
+  const toggleBalanceVisibility = useCallback(async () => {
+    try {
+      const newVisibility = !isBalanceVisible;
+      setIsBalanceVisible(newVisibility);
+      await AsyncStorage.setItem(BALANCE_VISIBLE_KEY, String(newVisibility));
+    } catch (error) {
+      console.error('Error saving balance visibility:', error);
+    }
+  }, [isBalanceVisible]);
+
+  // Load user name on mount
+  useEffect(() => {
+    loadUserName();
+  }, []);
+
   useFocusEffect(
     useCallback(() => {
       loadUserName();
-    }, [loadUserName])
+      loadBalanceVisibility();
+    }, [loadUserName, loadBalanceVisibility])
   );
 
   return (
@@ -80,8 +147,14 @@ export default function HomeScreen() {
               />
             </View>
             <View>
-              <Text className="text-secondary text-sm">Welcome back,</Text>
-              <Text className="text-primary text-xl font-semibold">Hi, {userName} 👋</Text>
+              <Text className="text-secondary text-sm">{t('welcomeBack')}</Text>
+              <Text className="text-primary text-xl font-semibold">
+                {userName 
+                  ? (i18n.language === 'tr' 
+                      ? `Merhaba, ${userName} 👋` 
+                      : `Hi, ${userName} 👋`)
+                  : (i18n.language === 'tr' ? 'Hoş geldin 👋' : 'Welcome 👋')}
+              </Text>
             </View>
           </View>
           <TouchableOpacity className="w-10 h-10 rounded-full bg-card items-center justify-center border border-border">
@@ -99,24 +172,48 @@ export default function HomeScreen() {
         >
           <View className="flex-row justify-between items-start mb-3">
             <View style={{ flex: 1, marginRight: 12 }}>
-              <Text className="text-secondary text-base mb-1">My Balance</Text>
-              <View className="flex-row items-center gap-2" style={{ flexWrap: 'wrap' }}>
-                <Text 
-                  className="text-primary font-bold"
-                  style={{ fontSize: 26, maxWidth: '85%' }}
-                  numberOfLines={1}
-                  adjustsFontSizeToFit
+              <Text className="text-secondary text-base mb-1">{t('myBalance')}</Text>
+              <View className="flex-row items-center gap-2">
+                <View style={{ width: 150 }}>
+                  <Animated.View
+                    key={isBalanceVisible ? 'visible' : 'hidden'}
+                    entering={FadeIn.duration(300)}
+                    exiting={FadeOut.duration(300)}
+                  >
+                    <Text 
+                      className="text-primary font-bold"
+                      style={{ fontSize: 26 }}
+                      numberOfLines={1}
+                      adjustsFontSizeToFit
+                    >
+                      {isBalanceVisible ? balance : formatHiddenBalance(balance)}
+                    </Text>
+                  </Animated.View>
+                </View>
+                <TouchableOpacity
+                  onPress={toggleBalanceVisibility}
+                  activeOpacity={0.7}
+                  hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}
                 >
-                  $3,420.75
-                </Text>
-                <Eye size={18} color="#A3A3A3" />
+                  <Animated.View
+                    key={isBalanceVisible ? 'eye' : 'eyeoff'}
+                    entering={FadeIn.duration(300)}
+                    exiting={FadeOut.duration(300)}
+                  >
+                    {isBalanceVisible ? (
+                      <Eye size={18} color="#A3A3A3" />
+                    ) : (
+                      <EyeOff size={18} color="#A3A3A3" />
+                    )}
+                  </Animated.View>
+                </TouchableOpacity>
               </View>
             </View>
             <TouchableOpacity 
               style={{ flexShrink: 0 }}
               className="bg-white/10 px-3 py-1 rounded-full border border-white/10"
             >
-              <Text className="text-primary text-xs">Add Funds</Text>
+              <Text className="text-primary text-xs">{t('addFunds')}</Text>
             </TouchableOpacity>
           </View>
 
@@ -135,13 +232,13 @@ export default function HomeScreen() {
             <View className="w-14 h-14 rounded-full bg-card items-center justify-center border border-border">
               <ArrowUpRight size={24} color="#FFFFFF" />
             </View>
-            <Text className="text-secondary text-xs">Send</Text>
+            <Text className="text-secondary text-xs">{t('send')}</Text>
           </TouchableOpacity>
           <TouchableOpacity className="flex-1 items-center gap-2">
             <View className="w-14 h-14 rounded-full bg-card items-center justify-center border border-border">
               <ArrowDownLeft size={24} color="#FFFFFF" />
             </View>
-            <Text className="text-secondary text-xs">Receive</Text>
+            <Text className="text-secondary text-xs">{t('receive')}</Text>
           </TouchableOpacity>
           <TouchableOpacity
             className="flex-1 items-center gap-2"
@@ -150,16 +247,16 @@ export default function HomeScreen() {
             <View className="w-14 h-14 rounded-full bg-card items-center justify-center border border-border">
               <FileText size={24} color="#FFFFFF" />
             </View>
-            <Text className="text-secondary text-xs">Pay Bills</Text>
+            <Text className="text-secondary text-xs">{t('payBills')}</Text>
           </TouchableOpacity>
         </View>
 
         {/* Money Spent Chart */}
         <View className="bg-card rounded-2xl p-5 mb-6 border border-border">
           <View className="flex-row justify-between items-center mb-6">
-            <Text className="text-primary text-lg font-semibold">Money Spent</Text>
+            <Text className="text-primary text-lg font-semibold">{t('moneySpent')}</Text>
             <TouchableOpacity className="bg-white/5 px-3 py-1 rounded-full border border-white/10">
-              <Text className="text-secondary text-xs">This Month</Text>
+              <Text className="text-secondary text-xs">{t('thisMonth')}</Text>
             </TouchableOpacity>
           </View>
 
@@ -187,9 +284,9 @@ export default function HomeScreen() {
         {/* Recent Activity */}
         <View className="mb-20">
           <View className="flex-row justify-between items-center mb-4">
-            <Text className="text-primary text-lg font-semibold">Recent Activity</Text>
+            <Text className="text-primary text-lg font-semibold">{t('recentActivity')}</Text>
             <TouchableOpacity>
-              <Text className="text-secondary text-sm">See All</Text>
+              <Text className="text-secondary text-sm">{t('seeAll')}</Text>
             </TouchableOpacity>
           </View>
 

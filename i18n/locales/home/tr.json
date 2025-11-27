@@ -1,0 +1,14 @@
+{
+  "welcomeBack": "Hoş geldin,",
+  "hi": "Merhaba, {name} 👋",
+  "myBalance": "Bakiyem",
+  "addFunds": "Para Ekle+",
+  "send": "Gönder",
+  "receive": "Al",
+  "payBills": "Fatura Öde",
+  "moneySpent": "Harcanan Para",
+  "thisMonth": "Bu Ay",
+  "recentActivity": "Son Aktiviteler",
+  "seeAll": "Tümünü Gör"
+}
+

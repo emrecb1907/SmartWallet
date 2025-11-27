@@ -3,9 +3,11 @@ import { useRouter } from 'expo-router';
 import { ArrowLeft, Bell } from 'lucide-react-native';
 import React, { useState } from 'react';
 import { Image, Text, TextInput, TouchableOpacity, View } from 'react-native';
+import { useTranslation } from 'react-i18next';
 
 
 export default function SendMoneyScreen() {
+    const { t } = useTranslation('send-money');
     const router = useRouter();
     const [amount, setAmount] = useState('');
 
@@ -24,7 +26,7 @@ export default function SendMoneyScreen() {
                 <TouchableOpacity onPress={() => router.back()} className="w-10 h-10 rounded-full bg-card items-center justify-center border border-border">
                     <ArrowLeft size={20} color="#FFFFFF" />
                 </TouchableOpacity>
-                <Text className="text-primary text-xl font-semibold">Send Money</Text>
+                <Text className="text-primary text-xl font-semibold">{t('sendMoney')}</Text>
                 <TouchableOpacity className="w-10 h-10 rounded-full bg-card items-center justify-center border border-border">
                     <Bell size={20} color="#FFFFFF" />
                 </TouchableOpacity>
@@ -46,7 +48,7 @@ export default function SendMoneyScreen() {
 
             {/* Amount Input */}
             <View className="mb-8">
-                <Text className="text-secondary text-sm mb-2">Enter Amount</Text>
+                <Text className="text-secondary text-sm mb-2">{t('enterAmount')}</Text>
                 <View className="bg-card rounded-2xl p-4 border border-border flex-row items-center justify-between">
                     <Text className="text-primary text-3xl font-bold">$</Text>
                     <TextInput
@@ -83,7 +85,7 @@ export default function SendMoneyScreen() {
                     onPress={() => router.push({ pathname: '/confirm-payment', params: { amount } })}
                     className="w-full bg-accent py-4 rounded-xl items-center mt-8"
                 >
-                    <Text className="text-white font-bold text-lg">Next</Text>
+                    <Text className="text-white font-bold text-lg">{t('next')}</Text>
                 </TouchableOpacity>
             </View>
         </SafeView>

@@ -1,0 +1,10 @@
+{
+  "payBills": "Fatura Öde",
+  "tapToScan": "QR Kod Taramak İçin Dokun",
+  "savedBiller": "Kayıtlı Faturalar",
+  "manage": "Yönet ({count})",
+  "searchForBiller": "Fatura Ara",
+  "searchPlaceholder": "Kurum adı veya tip ara",
+  "allBillers": "Tüm Faturalar"
+}
+

@@ -1,14 +1,57 @@
 import { SafeView } from '@/components/SafeView';
 import { LinearGradient } from 'expo-linear-gradient';
 import { CreditCard, Lock, MoreHorizontal, Plus, RefreshCw, Smartphone } from 'lucide-react-native';
-import React from 'react';
-import { Dimensions, ScrollView, Text, TouchableOpacity, View } from 'react-native';
+import React, { useRef, useState } from 'react';
+import { useTranslation } from 'react-i18next';
+import { Dimensions, FlatList, ScrollView, Text, TouchableOpacity, View } from 'react-native';
 import { PieChart } from 'react-native-gifted-charts';
-
 
 const screenWidth = Dimensions.get('window').width;
 
+interface CardData {
+    id: string;
+    bankName: string;
+    cardType: string;
+    cardNumber: string;
+    cardHolder: string;
+    expires: string;
+    gradientColors: string[];
+}
+
+const cards: CardData[] = [
+    {
+        id: '1',
+        bankName: 'IBBL',
+        cardType: 'VISA',
+        cardNumber: '5345 2331 3132 6564',
+        cardHolder: 'NURAIYAN SARAH',
+        expires: '08/28',
+        gradientColors: ['#D4AF37', '#C5A028', '#E5C15D'], // Gold
+    },
+    {
+        id: '2',
+        bankName: 'Brac Bank',
+        cardType: 'MASTERCARD',
+        cardNumber: '4532 8765 4321 9876',
+        cardHolder: 'NURAIYAN SARAH',
+        expires: '12/26',
+        gradientColors: ['#1E3A8A', '#3B82F6', '#60A5FA'], // Blue
+    },
+    {
+        id: '3',
+        bankName: 'City Bank',
+        cardType: 'VISA',
+        cardNumber: '4111 1111 1111 1111',
+        cardHolder: 'NURAIYAN SARAH',
+        expires: '06/27',
+        gradientColors: ['#059669', '#10B981', '#34D399'], // Green
+    },
+];
+
 export default function CardsScreen() {
+    const { t } = useTranslation('cards');
+    const [currentCardIndex, setCurrentCardIndex] = useState(0);
+    const flatListRef = useRef<FlatList>(null);
     const creditScore = 690;
     const maxScore = 850;
     const minScore = 300;
@@ -48,7 +91,7 @@ export default function CardsScreen() {
             <ScrollView className="flex-1 px-4" showsVerticalScrollIndicator={false}>
                 {/* Header */}
                 <View className="flex-row justify-between items-center mt-4 mb-6">
-                    <Text className="text-primary text-2xl font-semibold">My Cards</Text>
+                    <Text className="text-primary text-2xl font-semibold">{t('myCards')}</Text>
                     <View className="flex-row gap-3">
                         <TouchableOpacity className="w-10 h-10 rounded-full bg-card items-center justify-center border border-border">
                             <CreditCard size={20} color="#FFFFFF" />
@@ -59,69 +102,112 @@ export default function CardsScreen() {
                     </View>
                 </View>
 
-                {/* Card Component */}
-                <LinearGradient
-                    colors={['#D4AF37', '#C5A028', '#E5C15D']} // Gold metallic gradient
-                    start={{ x: 0, y: 0 }}
-                    end={{ x: 1, y: 1 }}
-                    className="mb-8 shadow-lg"
-                    style={{ 
-                        borderRadius: 24,
-                        height: 208, // h-52 = 13rem = 208px
-                        shadowColor: '#D4AF37', 
-                        shadowOpacity: 0.3, 
-                        shadowRadius: 10 
-                    }}
-                >
-                    <View className="p-6 flex-1 justify-between">
-                        <View className="flex-row justify-between items-start">
-                            <Text className="text-black font-bold text-lg">IBBL</Text>
-                            <Text className="text-black font-bold text-xl italic">VISA</Text>
-                        </View>
+                {/* Cards Slider */}
+                <View className="mb-6" style={{ marginHorizontal: -16 }}>
+                    <FlatList
+                        ref={flatListRef}
+                        data={cards}
+                        horizontal
+                        pagingEnabled
+                        snapToInterval={screenWidth - 16}
+                        snapToAlignment="start"
+                        decelerationRate="fast"
+                        showsHorizontalScrollIndicator={false}
+                        keyExtractor={(item) => item.id}
+                        contentContainerStyle={{ paddingLeft: 16, paddingRight: 16 }}
+                        onViewableItemsChanged={({ viewableItems }) => {
+                            if (viewableItems.length > 0) {
+                                setCurrentCardIndex(viewableItems[0].index || 0);
+                            }
+                        }}
+                        viewabilityConfig={{
+                            itemVisiblePercentThreshold: 50,
+                        }}
+                        getItemLayout={(_, index) => ({
+                            length: screenWidth - 16,
+                            offset: (screenWidth - 16) * index + 16,
+                            index,
+                        })}
+                        renderItem={({ item }) => (
+                            <View style={{ width: screenWidth - 32, marginRight: 16 }}>
+                                <LinearGradient
+                                    colors={item.gradientColors}
+                                    start={{ x: 0, y: 0 }}
+                                    end={{ x: 1, y: 1 }}
+                                    className="shadow-lg"
+                                    style={{ 
+                                        borderRadius: 24,
+                                        height: 208,
+                                        shadowColor: item.gradientColors[0], 
+                                        shadowOpacity: 0.3, 
+                                        shadowRadius: 10,
+                                    }}
+                                >
+                                    <View className="p-6 flex-1 justify-between">
+                                        <View className="flex-row justify-between items-start">
+                                            <Text className="text-black font-bold text-lg">{item.bankName}</Text>
+                                            <Text className="text-black font-bold text-xl italic">{item.cardType}</Text>
+                                        </View>
 
-                        <View className="flex-row items-center gap-2 my-2">
-                            <View className="w-10 h-8 bg-yellow-600/40 rounded-md border border-yellow-700/50" />
-                            <MoreHorizontal size={24} color="#000" className="opacity-50" />
-                        </View>
+                                        <View className="flex-row items-center gap-2 my-2">
+                                            <View className="w-10 h-8 bg-black/20 rounded-md border border-black/30" />
+                                            <MoreHorizontal size={24} color="#000" style={{ opacity: 0.5 }} />
+                                        </View>
 
-                        <View>
-                            <Text className="text-black text-xl font-mono font-bold tracking-widest mb-4">
-                                5345 2331 3132 6564
-                            </Text>
-                            <View className="flex-row justify-between">
-                                <View>
-                                    <Text className="text-black/60 text-[10px] uppercase font-bold">Card Holder</Text>
-                                    <Text className="text-black font-bold text-sm">NURAIYAN SARAH</Text>
-                                </View>
-                                <View>
-                                    <Text className="text-black/60 text-[10px] uppercase font-bold">Expires</Text>
-                                    <Text className="text-black font-bold text-sm">08/28</Text>
-                                </View>
+                                        <View>
+                                            <Text className="text-black text-xl font-mono font-bold tracking-widest mb-4">
+                                                {item.cardNumber}
+                                            </Text>
+                                            <View className="flex-row justify-between">
+                                                <View>
+                                                    <Text className="text-black/60 text-[10px] uppercase font-bold">{t('cardHolder')}</Text>
+                                                    <Text className="text-black font-bold text-sm">{item.cardHolder}</Text>
+                                                </View>
+                                                <View>
+                                                    <Text className="text-black/60 text-[10px] uppercase font-bold">{t('expires')}</Text>
+                                                    <Text className="text-black font-bold text-sm">{item.expires}</Text>
+                                                </View>
+                                            </View>
+                                        </View>
+                                    </View>
+                                </LinearGradient>
                             </View>
-                        </View>
+                        )}
+                    />
+                    
+                    {/* Page Indicators */}
+                    <View className="flex-row justify-center gap-2 mt-4">
+                        {cards.map((_, index) => (
+                            <View
+                                key={index}
+                                className={`h-2 rounded-full ${
+                                    index === currentCardIndex ? 'bg-blue-500 w-6' : 'bg-gray-400 w-2'
+                                }`}
+                            />
+                        ))}
                     </View>
-                </LinearGradient>
+                </View>
 
                 {/* Card Actions */}
                 <View className="flex-row justify-between mb-8 gap-3 mt-4">
                     <TouchableOpacity className="flex-1 flex-row items-center justify-center gap-2 bg-card py-3 rounded-xl border border-border">
                         <Lock size={16} color="#FFFFFF" />
-                        <Text className="text-primary text-sm font-medium">Freeze</Text>
+                        <Text className="text-primary text-sm font-medium">{t('freeze')}</Text>
                     </TouchableOpacity>
                     <TouchableOpacity className="flex-1 flex-row items-center justify-center gap-2 bg-card py-3 rounded-xl border border-border">
                         <RefreshCw size={16} color="#FFFFFF" />
-                        <Text className="text-primary text-sm font-medium">Replace</Text>
+                        <Text className="text-primary text-sm font-medium">{t('replace')}</Text>
                     </TouchableOpacity>
                     <TouchableOpacity className="flex-1 flex-row items-center justify-center gap-2 bg-card py-3 rounded-xl border border-border">
                         <Smartphone size={16} color="#FFFFFF" />
-                        <Text className="text-primary text-sm font-medium">Top Up</Text>
+                        <Text className="text-primary text-sm font-medium">{t('topUp')}</Text>
                     </TouchableOpacity>
                 </View>
 
                 {/* Credit Score Widget */}
                 <View className="bg-card rounded-2xl p-6 border border-border items-center mb-8">
                     <View className="w-full flex-row justify-between items-center mb-8">
-                        <Text className="text-primary text-lg font-semibold">Your Credit Score</Text>
+                        <Text className="text-primary text-lg font-semibold">{t('yourCreditScore')}</Text>
                     </View>
 
                     <View className="items-center justify-center" style={{ height: 120, marginTop: 20, marginBottom: 50 }}>
@@ -142,9 +228,9 @@ export default function CardsScreen() {
 
                     <View className="items-center w-full">
                         <Text className="text-secondary text-sm text-center">
-                            Your Credit Score is <Text className="text-warning font-bold">{getScoreLabel(creditScore)}</Text>
+                            {t('yourCreditScore')} <Text className="text-warning font-bold">{t(getScoreLabel(creditScore))}</Text>
                         </Text>
-                        <Text className="text-secondary text-xs mt-1">Last Checked on 21 Apr</Text>
+                        <Text className="text-secondary text-xs mt-1">{t('lastChecked', { date: '21 Apr' })}</Text>
                     </View>
                 </View>
 

@@ -2,6 +2,7 @@ import { SafeView } from '@/components/SafeView';
 import { CreditCard, Droplet, Heart, ScanLine, Search, SlidersHorizontal } from 'lucide-react-native';
 import React from 'react';
 import { ScrollView, Text, TextInput, TouchableOpacity, View } from 'react-native';
+import { useTranslation } from 'react-i18next';
 
 
 const savedBillers = [
@@ -43,6 +44,7 @@ const allBillers = [
 ];
 
 export default function PayScreen() {
+    const { t } = useTranslation('pay');
     return (
         <SafeView className="flex-1 bg-background">
             <ScrollView className="flex-1 px-4" showsVerticalScrollIndicator={false}>
@@ -52,7 +54,7 @@ export default function PayScreen() {
                         {/* Back button placeholder if needed, or just title */}
                     </TouchableOpacity>
                     <View className="flex-1 items-center">
-                        <Text className="text-primary text-xl font-semibold">Pay Bills</Text>
+                        <Text className="text-primary text-xl font-semibold">{t('payBills')}</Text>
                     </View>
                     <TouchableOpacity className="w-10 h-10 rounded-full bg-card items-center justify-center border border-border">
                         <View className="w-2 h-2 rounded-full bg-red-500 absolute top-2 right-2" />
@@ -63,15 +65,15 @@ export default function PayScreen() {
                 {/* QR Scanner Button */}
                 <TouchableOpacity className="flex-row items-center justify-center gap-3 bg-card p-4 rounded-xl border border-border mb-8">
                     <ScanLine size={24} color="#FFFFFF" />
-                    <Text className="text-primary font-medium">Tap To Scan QR Code</Text>
+                    <Text className="text-primary font-medium">{t('tapToScan')}</Text>
                 </TouchableOpacity>
 
                 {/* Saved Billers */}
                 <View className="mb-8">
                     <View className="flex-row justify-between items-center mb-4">
-                        <Text className="text-primary text-lg font-semibold">Saved Biller</Text>
+                        <Text className="text-primary text-lg font-semibold">{t('savedBiller')}</Text>
                         <TouchableOpacity>
-                            <Text className="text-secondary text-sm">Manage (13)</Text>
+                            <Text className="text-secondary text-sm">{t('manage', { count: 13 })}</Text>
                         </TouchableOpacity>
                     </View>
 
@@ -90,11 +92,11 @@ export default function PayScreen() {
 
                 {/* Search */}
                 <View className="mb-6">
-                    <Text className="text-primary text-lg font-semibold mb-3">Search For a Biller</Text>
+                    <Text className="text-primary text-lg font-semibold mb-3">{t('searchForBiller')}</Text>
                     <View className="flex-row items-center bg-card rounded-xl px-4 py-3 border border-border">
                         <Search size={20} color="#A3A3A3" className="mr-3" />
                         <TextInput
-                            placeholder="Search organisation name or type"
+                            placeholder={t('searchPlaceholder')}
                             placeholderTextColor="#A3A3A3"
                             className="flex-1 text-primary"
                         />
@@ -104,7 +106,7 @@ export default function PayScreen() {
                 {/* All Billers */}
                 <View className="mb-20">
                     <View className="flex-row justify-between items-center mb-4">
-                        <Text className="text-primary text-lg font-semibold">All Billers</Text>
+                        <Text className="text-primary text-lg font-semibold">{t('allBillers')}</Text>
                         <TouchableOpacity>
                             <SlidersHorizontal size={20} color="#A3A3A3" />
                         </TouchableOpacity>

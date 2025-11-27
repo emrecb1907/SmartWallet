@@ -12,10 +12,12 @@ import Animated, {
 import { SafeView } from '@/components/SafeView';
 import { LinearGradient } from 'expo-linear-gradient';
 import { Sparkles } from 'lucide-react-native';
+import { useTranslation } from 'react-i18next';
 
 const USER_NAME_KEY = '@user_name';
 
 export default function NameInputScreen() {
+    const { t } = useTranslation('name-input');
     const router = useRouter();
     const [name, setName] = useState('');
     const [isFocused, setIsFocused] = useState(false);
@@ -92,10 +94,9 @@ export default function NameInputScreen() {
                             </LinearGradient>
                         </Animated.View>
 
-                        <Text style={styles.title}>Hoş Geldin! 👋</Text>
+                        <Text style={styles.title}>{t('title')}</Text>
                         <Text style={styles.subtitle}>
-                            Sana nasıl hitap edelim?{'\n'}
-                            İsmini paylaş, birlikte başlayalım.
+                            {t('subtitle')}
                         </Text>
 
                     <View style={styles.inputContainer}>
@@ -104,7 +105,7 @@ export default function NameInputScreen() {
                                 styles.input,
                                 isFocused && styles.inputFocused,
                             ]}
-                            placeholder="İsmini yaz..."
+                            placeholder={t('placeholder')}
                             placeholderTextColor="#6B7280"
                             value={name}
                             onChangeText={setName}
@@ -149,13 +150,13 @@ export default function NameInputScreen() {
                                 end={{ x: 1, y: 0 }}
                                 style={styles.buttonGradient}
                             >
-                                <Text style={styles.buttonText}>Devam Et</Text>
+                                <Text style={styles.buttonText}>{t('button')}</Text>
                             </LinearGradient>
                         </TouchableOpacity>
                     </Animated.View>
 
                     <Text style={styles.hint}>
-                        İsmin sadece senin için saklanacak
+                        {t('hint')}
                     </Text>
                 </Animated.View>
             </KeyboardAvoidingView>

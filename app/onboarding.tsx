@@ -1,5 +1,5 @@
 import { useRef, useEffect, useState } from 'react';
-import { View, Text, StyleSheet, Dimensions, TouchableOpacity, FlatList } from 'react-native';
+import { View, Text, StyleSheet, Dimensions, TouchableOpacity, FlatList, StatusBar } from 'react-native';
 import LottieView from 'lottie-react-native';
 import { useRouter } from 'expo-router';
 import AsyncStorage from '@react-native-async-storage/async-storage';
@@ -13,8 +13,10 @@ import Animated, {
     Easing,
 } from 'react-native-reanimated';
 import { SafeView } from '@/components/SafeView';
+import { useTranslation } from 'react-i18next';
 
 const ONBOARDING_COMPLETED_KEY = '@onboarding_completed';
+const THEME_KEY = '@app_theme';
 
 const { width: SCREEN_WIDTH, height: SCREEN_HEIGHT } = Dimensions.get('window');
 
@@ -26,31 +28,32 @@ interface OnboardingSlide {
     backgroundColor: string;
 }
 
-const onboardingData: OnboardingSlide[] = [
+const getOnboardingData = (t: any): OnboardingSlide[] => [
     {
         id: 1,
-        title: 'Gelirlerini Belirle',
-        description: 'Maaşını ve ek gelirlerini gir, kontrol sende.',
+        title: t('onboarding:title1'),
+        description: t('onboarding:description1'),
         animation: require('../assets/MoneyWallet.json'),
         backgroundColor: '#F8F9FA', // Soft gri-beyaz
     },
     {
         id: 2,
-        title: 'Harcamalarını Düzenle',
-        description: 'Giderlerini tek tek ekle, nereye gittiğini gör.',
+        title: t('onboarding:title2'),
+        description: t('onboarding:description2'),
         animation: require('../assets/MoneyInvestment.json'),
         backgroundColor: '#F0F4F8', // Soft mavi-beyaz
     },
     {
         id: 3,
-        title: 'Finans Puanını Öğren',
-        description: 'Bütçe sağlığını takip et, finans puanını gör.',
+        title: t('onboarding:title3'),
+        description: t('onboarding:description3'),
         animation: require('../assets/CreditCard.json'),
         backgroundColor: '#E8F0FE', // Soft mavi
     },
 ];
 
 export default function OnboardingScreen() {
+    const { t } = useTranslation();
     const router = useRouter();
     const flatListRef = useRef<FlatList>(null);
     const [currentIndex, setCurrentIndex] = useState(0);
@@ -59,6 +62,7 @@ export default function OnboardingScreen() {
     const scaleAnim = useSharedValue(1);
     const slideOpacity = useSharedValue(1);
     const scrollX = useSharedValue(0);
+    const onboardingData = getOnboardingData(t);
 
     useEffect(() => {
         // Reset and play animation when screen changes
@@ -106,9 +110,10 @@ export default function OnboardingScreen() {
             easing: Easing.out(Easing.ease),
         });
         
-        // Mark onboarding as completed
+        // Mark onboarding as completed and set theme to dark
         try {
             await AsyncStorage.setItem(ONBOARDING_COMPLETED_KEY, 'true');
+            await AsyncStorage.setItem(THEME_KEY, 'dark');
         } catch (error) {
             console.error('Error saving onboarding status:', error);
         }
@@ -119,9 +124,10 @@ export default function OnboardingScreen() {
     };
 
     const handleSkip = async () => {
-        // Mark onboarding as completed when skipped
+        // Mark onboarding as completed when skipped and set theme to dark
         try {
             await AsyncStorage.setItem(ONBOARDING_COMPLETED_KEY, 'true');
+            await AsyncStorage.setItem(THEME_KEY, 'dark');
         } catch (error) {
             console.error('Error saving onboarding status:', error);
         }
@@ -212,6 +218,7 @@ export default function OnboardingScreen() {
 
     return (
         <Animated.View style={[styles.container, backgroundAnimatedStyle]}>
+            <StatusBar barStyle="dark-content" backgroundColor="transparent" translucent />
             <SafeView className="flex-1" style={{ backgroundColor: 'transparent' }}>
                 {/* Skip Button */}
                 <TouchableOpacity
@@ -219,7 +226,7 @@ export default function OnboardingScreen() {
                     style={styles.skipButton}
                     activeOpacity={0.7}
                 >
-                    <Text style={styles.skipText}>Skip</Text>
+                    <Text style={styles.skipText}>{t('onboarding:skip')}</Text>
                 </TouchableOpacity>
 
             {/* Slides */}
@@ -263,7 +270,7 @@ export default function OnboardingScreen() {
                             currentIndex === onboardingData.length - 1 && styles.buttonTextPrimary,
                         ]}
                     >
-                        {currentIndex === onboardingData.length - 1 ? 'Get Started' : 'Next'}
+                        {currentIndex === onboardingData.length - 1 ? t('onboarding:getStarted') : t('onboarding:next')}
                     </Text>
                 </TouchableOpacity>
             </Animated.View>

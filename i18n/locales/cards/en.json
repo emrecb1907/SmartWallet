@@ -1,0 +1,15 @@
+{
+  "myCards": "My Cards",
+  "freeze": "Freeze",
+  "replace": "Replace",
+  "topUp": "Top Up",
+  "yourCreditScore": "Your Credit Score",
+  "cardHolder": "Card Holder",
+  "expires": "Expires",
+  "lastChecked": "Last Checked on {date}",
+  "excellent": "excellent",
+  "average": "average",
+  "fair": "fair",
+  "poor": "poor"
+}
+

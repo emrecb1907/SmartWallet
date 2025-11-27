@@ -1,0 +1,15 @@
+{
+  "myCards": "Kartlarım",
+  "freeze": "Dondur",
+  "replace": "Değiştir",
+  "topUp": "Yükle",
+  "yourCreditScore": "Kredi Skorun",
+  "cardHolder": "Kart Sahibi",
+  "expires": "Son Kullanma",
+  "lastChecked": "Son Kontrol: {date}",
+  "excellent": "mükemmel",
+  "average": "orta",
+  "fair": "iyi",
+  "poor": "düşük"
+}
+

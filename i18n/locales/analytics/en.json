@@ -1,0 +1,11 @@
+{
+  "controlPanel": "Control Panel",
+  "languageSelection": "Language Selection",
+  "turkish": "Turkish",
+  "english": "English",
+  "restartRequired": "Language Change",
+  "restartMessage": "The app needs to be restarted for the language change to take effect. Would you like to restart now?",
+  "restart": "Restart",
+  "cancel": "Cancel"
+}
+

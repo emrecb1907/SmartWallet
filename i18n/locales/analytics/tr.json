@@ -1,0 +1,11 @@
+{
+  "controlPanel": "Kontrol Paneli",
+  "languageSelection": "Dil Seçimi",
+  "turkish": "Türkçe",
+  "english": "İngilizce",
+  "restartRequired": "Dil Değişikliği",
+  "restartMessage": "Dil değişikliğinin uygulanması için uygulamanın yeniden başlatılması gerekiyor. Şimdi yeniden başlatmak ister misiniz?",
+  "restart": "Yeniden Başlat",
+  "cancel": "İptal"
+}
+

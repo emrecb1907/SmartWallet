@@ -1,0 +1,14 @@
+{
+  "welcomeBack": "Welcome back,",
+  "hi": "Hi, {name} 👋",
+  "myBalance": "My Balance",
+  "addFunds": "Add Funds+",
+  "send": "Send",
+  "receive": "Receive",
+  "payBills": "Pay Bills",
+  "moneySpent": "Money Spent",
+  "thisMonth": "This Month",
+  "recentActivity": "Recent Activity",
+  "seeAll": "See All"
+}
+

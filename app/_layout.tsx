@@ -23,8 +23,9 @@ console.warn = (...args) => {
 
 
 import '../global.css';
+import '../i18n/config';
 
-import { useColorScheme } from '@/components/useColorScheme';
+import { useTheme } from '@/components/useTheme';
 
 export {
   // Catch any errors thrown by the Layout component.
@@ -69,11 +70,11 @@ export default function RootLayout() {
 }
 
 function RootLayoutNav() {
-  const colorScheme = useColorScheme();
+  const { activeTheme } = useTheme();
 
   return (
     <SafeAreaProvider>
-      <ThemeProvider value={colorScheme === 'dark' ? DarkTheme : DefaultTheme}>
+      <ThemeProvider value={activeTheme === 'dark' ? DarkTheme : DefaultTheme}>
         <Stack>
           <Stack.Screen name="index" options={{ headerShown: false }} />
           <Stack.Screen name="onboarding" options={{ headerShown: false }} />
