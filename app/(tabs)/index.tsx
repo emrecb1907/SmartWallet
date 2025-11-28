@@ -212,6 +212,7 @@ export default function HomeScreen() {
             <TouchableOpacity 
               style={{ flexShrink: 0 }}
               className="bg-white/10 px-3 py-1 rounded-full border border-white/10"
+              onPress={() => router.push('/add-funds')}
             >
               <Text className="text-primary text-xs">{t('addFunds')}</Text>
             </TouchableOpacity>

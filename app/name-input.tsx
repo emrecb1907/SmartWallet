@@ -10,7 +10,6 @@ import Animated, {
     Easing,
 } from 'react-native-reanimated';
 import { SafeView } from '@/components/SafeView';
-import { LinearGradient } from 'expo-linear-gradient';
 import { Sparkles } from 'lucide-react-native';
 import { useTranslation } from 'react-i18next';
 
@@ -71,27 +70,17 @@ export default function NameInputScreen() {
     });
 
     return (
-        <LinearGradient
-            colors={['#0F172A', '#1E293B', '#334155']}
-            start={{ x: 0, y: 0 }}
-            end={{ x: 1, y: 1 }}
-            style={styles.gradientBackground}
-        >
-            <SafeView className="flex-1" style={{ backgroundColor: 'transparent' }}>
+        <View style={styles.container}>
+            <SafeView className="flex-1" style={{ backgroundColor: '#E8F0FE' }}>
                 <KeyboardAvoidingView
                     behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
                     style={styles.container}
                 >
                     <Animated.View style={[styles.content, containerAnimatedStyle]}>
                         <Animated.View style={styles.iconWrapper}>
-                            <LinearGradient
-                                colors={['#3B82F6', '#2563EB', '#1D4ED8']}
-                                start={{ x: 0, y: 0 }}
-                                end={{ x: 1, y: 1 }}
-                                style={styles.iconContainer}
-                            >
-                                <Sparkles size={40} color="#FFFFFF" />
-                            </LinearGradient>
+                            <View style={styles.iconContainer}>
+                                <Sparkles size={40} color="#3B82F6" />
+                            </View>
                         </Animated.View>
 
                         <Text style={styles.title}>{t('title')}</Text>
@@ -106,7 +95,7 @@ export default function NameInputScreen() {
                                 isFocused && styles.inputFocused,
                             ]}
                             placeholder={t('placeholder')}
-                            placeholderTextColor="#6B7280"
+                            placeholderTextColor="#9CA3AF"
                             value={name}
                             onChangeText={setName}
                             onFocus={() => setIsFocused(true)}
@@ -140,18 +129,12 @@ export default function NameInputScreen() {
                             onPress={handleContinue}
                             activeOpacity={0.8}
                         >
-                            <LinearGradient
-                                colors={
-                                    name.trim().length >= 2
-                                        ? ['#3B82F6', '#2563EB']
-                                        : ['#374151', '#4B5563']
-                                }
-                                start={{ x: 0, y: 0 }}
-                                end={{ x: 1, y: 0 }}
-                                style={styles.buttonGradient}
-                            >
-                                <Text style={styles.buttonText}>{t('button')}</Text>
-                            </LinearGradient>
+                            <Text style={[
+                                styles.buttonText,
+                                name.trim().length >= 2 && styles.buttonTextActive
+                            ]}>
+                                {t('button')}
+                            </Text>
                         </TouchableOpacity>
                     </Animated.View>
 
@@ -161,16 +144,14 @@ export default function NameInputScreen() {
                 </Animated.View>
             </KeyboardAvoidingView>
         </SafeView>
-        </LinearGradient>
+        </View>
     );
 }
 
 const styles = StyleSheet.create({
-    gradientBackground: {
-        flex: 1,
-    },
     container: {
         flex: 1,
+        backgroundColor: '#E8F0FE',
     },
     content: {
         flex: 1,
@@ -189,19 +170,20 @@ const styles = StyleSheet.create({
         borderRadius: 50,
         justifyContent: 'center',
         alignItems: 'center',
-        shadowColor: '#3B82F6',
+        backgroundColor: '#FFFFFF',
+        shadowColor: '#000',
         shadowOffset: {
             width: 0,
-            height: 8,
+            height: 2,
         },
-        shadowOpacity: 0.5,
-        shadowRadius: 20,
-        elevation: 12,
+        shadowOpacity: 0.1,
+        shadowRadius: 8,
+        elevation: 4,
     },
     title: {
         fontSize: 32,
         fontWeight: '700',
-        color: '#FFFFFF',
+        color: '#1A1A1A',
         textAlign: 'center',
         marginBottom: 12,
         letterSpacing: -0.5,
@@ -209,7 +191,7 @@ const styles = StyleSheet.create({
     subtitle: {
         fontSize: 16,
         fontWeight: '400',
-        color: '#9CA3AF',
+        color: '#6B7280',
         textAlign: 'center',
         lineHeight: 24,
         marginBottom: 48,
@@ -223,18 +205,18 @@ const styles = StyleSheet.create({
     input: {
         width: '100%',
         height: 56,
-        backgroundColor: '#1F2937',
+        backgroundColor: '#FFFFFF',
         borderRadius: 16,
         paddingHorizontal: 20,
         fontSize: 18,
         fontWeight: '500',
-        color: '#FFFFFF',
+        color: '#1A1A1A',
         borderWidth: 2,
-        borderColor: '#374151',
+        borderColor: '#E5E7EB',
     },
     inputFocused: {
         borderColor: '#3B82F6',
-        backgroundColor: '#111827',
+        backgroundColor: '#FFFFFF',
     },
     charCount: {
         position: 'absolute',
@@ -243,35 +225,40 @@ const styles = StyleSheet.create({
     },
     charCountText: {
         fontSize: 12,
-        color: '#6B7280',
+        color: '#9CA3AF',
         fontWeight: '500',
     },
     button: {
         width: '100%',
+        backgroundColor: '#FFFFFF',
+        paddingVertical: 16,
+        paddingHorizontal: 20,
         borderRadius: 16,
-        overflow: 'hidden',
+        alignItems: 'center',
+        justifyContent: 'center',
+        borderWidth: 1,
+        borderColor: '#E5E7EB',
         marginBottom: 16,
         shadowColor: '#000',
         shadowOffset: {
             width: 0,
-            height: 4,
+            height: 2,
         },
-        shadowOpacity: 0.2,
+        shadowOpacity: 0.1,
         shadowRadius: 8,
         elevation: 4,
+        overflow: 'hidden',
     },
     buttonActive: {
-        shadowColor: '#3B82F6',
-        shadowOpacity: 0.4,
-    },
-    buttonGradient: {
-        paddingVertical: 18,
-        alignItems: 'center',
-        justifyContent: 'center',
+        backgroundColor: '#3B82F6',
+        borderColor: '#3B82F6',
     },
     buttonText: {
-        fontSize: 18,
+        fontSize: 16,
         fontWeight: '600',
+        color: '#1A1A1A',
+    },
+    buttonTextActive: {
         color: '#FFFFFF',
     },
     hint: {
